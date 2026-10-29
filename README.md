@@ -23,3 +23,14 @@ This roadmap outlines the steps to build, secure, and document a centralized hom
 ## 🔍 Network Traffic Flow (Architecture)
 
 Once everything is up and running, the DNS traffic moves through the following chain:
+```text
+[All devices in the house / Guests] 
+       │ (requests web addresses)
+       ▼
+[Your Router (DHCP Server)] 
+       │ (automatically tells devices: "Ask my Raspberry Pi!")
+       ▼
+[Raspberry Pi / Pi-hole Container] 
+       │ (Checks against your blocklists)
+       ├─► If ad/malicious ──► Stop! 🛑 (Blocked immediately)
+       └─► If allowed ───────► Forwards upstream ──► [OpenDNS] 🌐
