@@ -1,0 +1,20 @@
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      # DNS-ports (TCP och UDP)
+      - "53:53/tcp"
+      - "53:53/udp"
+      # HTTP-port
+      - "80:80/tcp"
+      # HTTPS-port (not must, but very good to have it)
+      - "443:443/tcp"
+    environment:
+      TZ: 'Europe/Stockholm'
+      FTLCONF_webserver_api_password: '${PIHOLE_PASSWORD}'
+      # Is a must when docker is used in brigde mode to take in network trafic
+      FTLCONF_dns_listeningMode: 'ALL'
+    volumes:
+      - './etc-pihole:/etc/pihole'
+    restart: unless-stopped
