@@ -1,5 +1,28 @@
-# pihole-home
-This is my first project. The goal is to configure Pi-hole inside a Docker container to cover my entire local network.
+# 🥧 Pi-hole Home Lab
+
+![Raspberry Pi](https://img.shields.io/badge/Raspberry%20Pi-C51A4A?style=for-the-badge&logo=Raspberry-Pi&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Completed-success)
+
+The main goal of this project is to learn how to configure a custom DNS path in an isolated container through Docker on a Raspberry Pi, as well as how to properly document my progress with GitHub. As this is my first project, there will be a lot of updates to the documentation as I build and scale the project.
+
+---
+
+## 📑 Table of Contents
+- [Project Overview & Executive Summary](#-project-overview--executive-summary)
+- [Project Roadmap & Status](#-project-roadmap--status)
+- [Network Architecture & Traffic Flow](#-network-architecture--traffic-flow)
+- [Completed Milestones & Implementation Guide](#-completed-milestones--implementation-guide)
+- [Repository Structure & GitHub Integration](#-repository-structure--github-integration)
+- [Technical Troubleshooting & Practical Learnings](#️-technical-troubleshooting--practical-learnings)
+
+---
+
+## 📌 Project Overview & Executive Summary
+This repository documents a production-ready, containerized DNS ad-blocking homelab project built on a Raspberry Pi. The primary objective is to deploy Pi-hole within a secure Docker environment, establish strict secret separation, enforce version control best practices via Git/SSH, and implement a robust verification workflow. Despite hardware limitations imposed by the ISP-provided router, the project successfully delivers a secure, documented, and modular network-filtering foundation suitable for a cybersecurity portfolio.
+
+---
 
 ## 🎯 Project Roadmap & Status
 
@@ -12,31 +35,34 @@ This is my first project. The goal is to configure Pi-hole inside a Docker conta
   * Configured Docker with explicit port mappings (`53:53`, `80:80`, `443:443`) in **bridge mode** for container isolation and future scalability.
   * Created a structured custom configuration (`docker-compose-pihole.yml`) managed via explicit file flags (`-f`).
 
-- [x] **Milestone 3: Web UI & Upstream Configuration** (Web UI Verified)
+- [x] **Milestone 3: Web UI & Client Verification**
   * Verified administrative access via browser (`http://<PI_IP>/admin`).
   * Tested manual client DNS override and verified redirection using `nslookup` from a Windows host.
 
-- [ ] **Milestone 4: Network-Wide Integration**
-  * Configure router DHCP settings to point all local network devices to the Pi-hole DNS server.
-  * Monitor query logs and verify ad-blocking functionality across client devices.
+- [x] **Milestone 4: Network-Wide Integration (Alternative Approach & Known Limitation)**
+  * **Constraint:** The ISP-provided router (Com Hem/Tele2) has locked firmware restricting manual LAN DHCP DNS assignment.
+  * **Solution:** Documented the hardware limitation and bypassed network-wide router restrictions by implementing targeted manual DNS overrides on primary client devices.
 
 ---
 
 ## 🔍 Network Traffic Flow (Architecture)
 
 Once everything is up and running, the DNS traffic moves through the following chain:
+
 ```text
 [All devices in the house / Guests] 
-       │ (requests web addresses)
-       ▼
+        │ (requests web addresses)
+        ▼
 [Your Router (DHCP Server)] 
-       │ (automatically tells devices: "Ask my Raspberry Pi!")
-       ▼
+        │ (automatically tells devices: "Ask my Raspberry Pi!")
+        ▼
 [Raspberry Pi / Pi-hole Container] 
-       │ (Checks against your blocklists)
-       ├─► If ad/malicious ──► Stop! 🛑 (Blocked immediately)
-       └─► If allowed ───────► Forwards upstream ──► [OpenDNS] 🌐
+        │ (Checks against your blocklists)
+        ├─► If ad/malicious ──► Stop! 🛑 (Blocked immediately)
+        └─► If allowed ───────► Forwards upstream ──► [OpenDNS] 🌐
 ```
+---
+
 ## 🏆 Completed Milestones & Implementation Guide
 
 ### Milestone 1: Host & Network Setup
@@ -51,38 +77,54 @@ Once everything is up and running, the DNS traffic moves through the following c
 * **How it was done:**
   * **Docker Engine & Permissions:** Installed Docker via the official installation script and configured user daemon privileges (`sudo usermod -aG docker $USER`) for secure command execution.
   * **Bridge Mode & Port Isolation:** Deliberately bypassed `network_mode: host` in favor of standard **bridge mode** with explicit port mappings (`53:53/tcp+udp`, `80:80/tcp`, `443:443/tcp`). This isolates the Pi-hole service and preserves host ports for future homelab containers.
-  * **Custom Configuration Management:** Created a dedicated configuration file named `docker-compose-pihle.yml` to maintain clean multi-container directory organization.
+  * **Custom Configuration Management:** Created a dedicated configuration file named `docker-compose-pihole.yml` to maintain clean multi-container directory organization.
   * **Detached Deployment:** Started the stack in the background using the explicit file flag:
     ```bash
     docker compose -f docker-compose-pihle.yml up -d
     ```
----
+
+### Milestone 3: Web UI & Client Verification
+* **What was done:** Verified administrative accessibility and validated that client DNS queries are successfully intercepted and resolved by the Pi-hole container.
+* **How it was done:**
+  * **Web Dashboard Access:** Successfully accessed the Pi-hole admin interface via web browser (`http://<PI_IP>/admin`) to inspect real-time query logs and blocklist status.
+  * **Client Override Testing:** Configured manual IPv4 DNS settings on a test host (Windows network adapter properties) to point directly to the Raspberry Pi's IP address.
+  * **Query Validation:** Executed diagnostic queries using `nslookup` in the Windows shell to confirm that domain resolution correctly targeted the local Pi-hole instance rather than default upstream gateways.
+
+### Milestone 4: Network-Wide Integration & Hardware Constraint Handling
+* **What was done:** Investigated network-wide deployment options and addressed upstream router limitations through structured architectural documentation.
+* **How it was done:**
+  * **Firmware Limitation Audit:** Inspected the ISP-provided router (Com Hem/Tele2) gateway settings and identified locked LAN DHCP configuration menus that prevented manual local DNS assignment.
+  * **Risk Assessment:** Evaluated the alternative approach of transferring DHCP authority to the Raspberry Pi, weighing the benefits against Single Point of Failure (SPOF) risks and recovery dependencies during power outages.
+  * **Pragmatic Resolution:** Documented the hardware constraint as a known limitation in the project architecture and implemented targeted manual DNS overrides on core client devices as a stable, controlled rollout strategy.
+ ---
 
 ## 📌 Repository Structure & GitHub Integration
 
 ### 1. Git & SSH Authentication on Raspberry Pi
-- **Git Identity:** Configured global `user.name` and `user.email` directly in the terminal on the Raspberry Pi.
-- **SSH Key (Ed25519):** Generated an Ed25519 key pair (`~/.ssh/id_ed25519`) and added the public key to GitHub for secure, passwordless authentication.
-- **Connection Verification:** Tested and verified the SSH connection against GitHub using `ssh -T git@github.com`.
+* **Git Identity:** Configured global `user.name` and `user.email` directly in the terminal on the Raspberry Pi.
+* **SSH Key (Ed25519):** Generated an Ed25519 key pair (`~/.ssh/id_ed25519`) and added the public key to GitHub for secure, passwordless authentication.
+* **Connection Verification:** Tested and verified the SSH connection against GitHub using `ssh -T git@github.com`.
 
 ### 2. Project Structure & Isolation
-- **Dedicated Directory:** Created the project folder `~/Pi-Hole_Lab/` to isolate project configuration files from the home directory (`~`).
-- **File Organization:** Moved `docker-compose-pihle.yml` into the dedicated project workspace.
-- **Remote Link:** Initialized the directory as a local Git repository and linked it to the remote repository (`git@github.com:RealRakSor/Pi-Hole_Lab.git`).
+* **Dedicated Directory:** Created the project folder `~/Pi-Hole_Lab/` to isolate project configuration files from the home directory (`~`).
+* **File Organization:** Moved `docker-compose-pihole.yml` into the dedicated project workspace.
+* **Remote Link:** Initialized the directory as a local Git repository and linked it to the remote repository (`git@github.com:RealRakSor/Pi-Hole_Lab.git`).
 
 ### 3. Security & Secret Management
-- **Environment Variables in Compose:** Updated `docker-compose-pihle.yml` so that sensitive parameters (such as `FTLCONF_webserver_api_password`) utilize variable interpolation (`${PIHOLE_PASSWORD}`).
-- **Local `.env` File:** Created a local `.env` file inside `~/Pi-Hole_Lab/` containing the actual plaintext password, keeping it strictly on the Raspberry Pi host.
-- **`.gitignore` Exclusion:** Implemented a `.gitignore` file to ensure `.env` and local data directories are omitted from version control, preventing accidental credential leaks on GitHub.
-- **Configuration Verification:** Validated variable parsing and compose syntax locally using `docker compose -f docker-compose-pihle.yml config`.
+* **Environment Variables in Compose:** Updated `docker-compose-pihole.yml` so that sensitive parameters (such as `FTLCONF_webserver_api_password`) utilize variable interpolation (`${PIHOLE_PASSWORD}`).
+* **Local `.env` File:** Created a local `.env` file inside `~/Pi-Hole_Lab/` containing the actual plaintext password, keeping it strictly on the Raspberry Pi host.
+* **`.gitignore` Exclusion:** Implemented a `.gitignore` file to ensure `.env` and local data directories are omitted from version control, preventing accidental credential leaks on GitHub.
+* **Configuration Verification:** Validated variable parsing and compose syntax locally using `docker compose -f docker-compose-pihole.yml config`.
 
 ### 4. Version Control & GitHub Push
-- **Remote Synchronization:** Resolved initial push rejections (`fetch first` / `unrelated histories`) caused by remote initialization files by syncing remote changes (`git pull`).
-- **Successful Push:** Staged, committed, and pushed the infrastructure blueprints (`docker-compose-pihle.yml`) and exclusion rules (`.gitignore`) to the `main` branch.
-- **Repository Status:** Verified a clean working tree (`working tree clean`) with the local environment fully synchronized with `origin/main`.
+* **Remote Synchronization:** Resolved initial push rejections (`fetch first` / `unrelated histories`) caused by remote initialization files by syncing remote changes (`git pull`).
+* **Successful Push:** Staged, committed, and pushed the infrastructure blueprints (`docker-compose-pihole.yml`) and exclusion rules (`.gitignore`) to the `main` branch.
+* **Repository Status:** Verified a clean working tree (`working tree clean`) with the local environment fully synchronized with `origin/main`.
+    
 
 ---
-    ## 🛠️ Technical Troubleshooting & Practical Learnings
+
+## 🛠️ Technical Troubleshooting & Practical Learnings
 
 ### 1. SSH Host Key Fingerprint Update
 * **The Issue:** Host identification mismatch warning (`REMOTE HOST IDENTIFICATION HAS CHANGED!`) after a clean OS reinstallation on the existing static IP.
@@ -94,7 +136,7 @@ Once everything is up and running, the DNS traffic moves through the following c
 
 ### 3. Environment File Context (`.env` Placement)
 * **The Issue:** Docker warning: `The "PIHOLE_PASSWORD" variable is not set`.
-* **The Cause:** The `.env` file was placed in the home directory (`~`) rather than side-by-side with the target `docker-compose-pihle.yml` file.
+* **The Cause:** The `.env` file was placed in the home directory (`~`) rather than side-by-side with the target `docker-compose-pihole.yml` file.
 * **The Solution:** Ensured all environment configuration files reside in the exact same directory as the executing compose file, as Docker looks locally for context.
 
 ### 4. Git Staging & File Existence
