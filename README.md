@@ -12,8 +12,8 @@ This is my first project. The goal is to configure Pi-hole inside a Docker conta
   * Configured Docker with explicit port mappings (`53:53`, `80:80`, `443:443`) in **bridge mode** for container isolation and future scalability.
   * Created a structured custom configuration (`docker-compose-pihole.yml`) managed via explicit file flags (`-f`).
 
-- [ ] **Milestone 3: Web UI & Upstream Configuration** *(Current)*
-  * Verify admin access via browser (`http://<PI_IP>/admin`).
+- [x] **Milestone 3: Web UI & Upstream Configuration** (Web UI Verified)
+  * Verified administrative access via browser (`http://<PI_IP>/admin`).
   * Integrate OpenDNS as the upstream DNS provider for enhanced network filtering.
 
 - [ ] **Milestone 4: Network-Wide Integration**
