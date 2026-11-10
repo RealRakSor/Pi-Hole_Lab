@@ -14,7 +14,7 @@ This is my first project. The goal is to configure Pi-hole inside a Docker conta
 
 - [x] **Milestone 3: Web UI & Upstream Configuration** (Web UI Verified)
   * Verified administrative access via browser (`http://<PI_IP>/admin`).
-  * Integrate OpenDNS as the upstream DNS provider for enhanced network filtering.
+  * Tested manual client DNS override and verified redirection using `nslookup` from a Windows host.
 
 - [ ] **Milestone 4: Network-Wide Integration**
   * Configure router DHCP settings to point all local network devices to the Pi-hole DNS server.
